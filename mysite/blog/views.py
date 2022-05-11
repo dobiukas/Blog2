@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.views import generic
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
@@ -15,33 +16,35 @@ class PostList(generic.ListView):
 class PostDetail(generic.DetailView):
     model = Post
     template_name = 'post_detail.html'
+class PostDetailView(generic.DetailView, FormMixin):
+    model = Post
+    template_name = 'project.html'
+    context_object_name = 'project'
+    form_class = CommentForm
+
+    class Meta:
+        ordering = ['title']
+
+    def get_success_url(self):
+        return reverse('post', kwargs={'pk': self.object.id})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        form.instance.post = self.object
+        form.instance.Comment = self.request.user
+        form.save()
+        return super(PostDetailView, self).form_valid(form)
 
 
 ###comments
 
-def post_detail(request, slug):
-    template_name = 'post_detail.html'
-    post = get_object_or_404(Post, slug=slug)
-    comments = post.comments.filter(active=True)
-    new_comment = None
-    # Comment posted
-    if request.method == 'POST':
-        comment_form = CommentForm(data=request.POST)
-        if comment_form.is_valid():
-
-            # Create Comment object but don't save to database yet
-            new_comment = comment_form.save(commit=False)
-            # Assign the current post to the comment
-            new_comment.post = post
-            # Save the comment to the database
-            new_comment.save()
-    else:
-        comment_form = CommentForm()
-
-    return render(request, template_name, {'post': post,
-                                           'comments': comments,
-                                           'new_comment': new_comment,
-                                           'comment_form': comment_form})
 
 # signup page
 def RegisterPage(request):
@@ -85,6 +88,30 @@ def LogOutPage(request):
     return redirect('/blog')
 #comments
 
+def post_detail(request, slug):
+    template_name = 'post_detail.html'
+    paginate_by = 3
+    post = get_object_or_404(Post, slug=slug)
+    comments = post.comments.filter(active=True)
+    new_comment = None
+    # Comment posted
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+
+
+            new_comment = comment_form.save(commit=False)
+
+            new_comment.post = post
+
+            new_comment.save()
+    else:
+        comment_form = CommentForm()
+
+    return render(request, template_name, {'post': post,
+                                           'comments': comments,
+                                           'new_comment': new_comment,
+                                           'comment_form': comment_form})
 
 
 

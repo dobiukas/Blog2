@@ -11,12 +11,14 @@
         {% if user.is_authenticated %}
   <div class="fieldWrapper">
     <hr><br/>
-    <h4>Palikite atsiliepimą:</h4>
+    <h4>Leave your text:</h4>
     <form action="" method="post">
       {% csrf_token %}
       {{ form.content }}
         </br>
-      <input type="submit" value="Išsaugoti">
+
+        <a href="{% url 'post_detail' post.slug  %}" class="btn btn-primary">Submit</a>
+        <a href="{% url 'post_detail' post.slug  %}" class="btn btn-primary">Delete</a>
     </form>
   </div>
   {% endif %}

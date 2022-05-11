@@ -8,7 +8,7 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('name', 'email', 'body')
-        widgets = {'blog': forms.HiddenInput(), 'reviewer': forms.HiddenInput()}
+       # widgets = {'blog': forms.HiddenInput(), 'reviewer': forms.HiddenInput()}
 
 
 class CreateUserForm(UserCreationForm):
