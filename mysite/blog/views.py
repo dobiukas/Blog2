@@ -1,4 +1,3 @@
-from django.urls import reverse
 from django.views import generic
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
@@ -87,30 +86,7 @@ def LogOutPage(request):
 #comments
 
 
-class PostDetail(generic.DetailView):
-    model = Post
-    template_name = 'post_detail.html'
-    from_class = CommentForm
 
-    class Meta:
-        ordering = ['title']
-
-    def get_success_url(self):
-        return reverse('PostDetail', kwargs={'pk': self.object.id})
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        form.instance.book = self.object
-        form.instance.reviewer = self.request.user
-        form.save()
-        return super(PostDetail, self).form_valid(form)
 
 
 
